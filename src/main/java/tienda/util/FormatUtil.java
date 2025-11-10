@@ -1,4 +1,4 @@
-package tienda.util;
+package com.tiendaweb.tienda.util;
 
 import java.text.NumberFormat;
 import java.util.Locale;
