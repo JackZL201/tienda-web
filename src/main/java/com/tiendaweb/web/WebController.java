@@ -1,136 +1,80 @@
-package com.tiendaweb.web;
+package tienda.web;
 
-import com.tiendaweb.mongo.VentaDoc;
-import com.tiendaweb.mongo.VentaRepository;
-import com.tiendaweb.session.CartSession;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import tienda.models.*;
-import tienda.service.CatalogoService;
-import tienda.service.DescuentoService;
-import tienda.service.TicketService;
-import tienda.util.FormatUtil;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import tienda.models.*;
+import tienda.service.*;
+import tienda.util.FormatUtil;
 
 @Controller
 public class WebController {
 
-  private final CatalogoService catalogoService = new CatalogoService();
-  private final DescuentoService descuentoService = new DescuentoService();
-  private final TicketService ticketService = new TicketService();
-  private final CartSession cart;
-  private final VentaRepository ventas;
+    private final CatalogoService catalogoService = new CatalogoService();
+    private final DescuentoService descuentoService = new DescuentoService();
+    private final TicketService ticketService = new TicketService();
 
-  public WebController(CartSession cart, VentaRepository ventas) {
-    this.cart = cart;
-    this.ventas = ventas;
-  }
-
-  @GetMapping("/")
-  public String index(@RequestParam(required=false) Categoria categoria,
-                      @RequestParam(required=false) Categoria subcat,
-                      Model model) {
-
-    List<Categoria> principales = List.of(
-      Categoria.LECHE, Categoria.YOGURT, Categoria.MANTEQUILLA_MARGARINA,
-      Categoria.SNACKS, Categoria.LIMPIEZA, Categoria.DETERGENTES,
-      Categoria.LAVATRASTES, Categoria.BEBIDAS
-    );
-
-    List<Categoria> subcats = List.of();
-    if (categoria != null) {
-      switch (categoria) {
-        case LECHE -> subcats = List.of(Categoria.LECHE_ENTERA, Categoria.LECHE_DESLACTOSADA, Categoria.LECHE_SABORIZADA);
-        case YOGURT -> subcats = List.of(Categoria.YOGURT_BEBIBLE, Categoria.YOGURT_NATURAL, Categoria.YOGURT_GRIEGO);
-        case SNACKS -> subcats = List.of(Categoria.GALLETAS, Categoria.BOTANAS, Categoria.PASTELITOS);
-        default -> subcats = List.of(categoria);
-      }
-      if (subcat == null && !subcats.isEmpty()) subcat = subcats.get(0);
+    @GetMapping("/")
+    public String home() {
+        return "index"; // opcional
     }
 
-    List<Producto> productos = List.of();
-    if (subcat != null) {
-      Map<Categoria, List<Producto>> map = catalogoService.obtenerCatalogo(subcat);
-      productos = map.getOrDefault(subcat, List.of());
+    // Vista del ticket en HTML
+    @GetMapping("/ticket")
+    public String ticketHtml(
+            @RequestParam String nombre,
+            @RequestParam String email,
+            @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) String subcategoria,
+            @RequestParam(required = false) String producto,
+            @RequestParam(required = false, defaultValue = "1") int cantidad,
+            @RequestParam(required = false) String cupon,
+            Model model) {
+
+        // Construir carrito breve de ejemplo (o usa tus params)
+        Carrito carrito = new Carrito();
+        if (producto != null) {
+            Producto p = catalogoService.buscarProductoPorNombre(producto);
+            if (p != null) carrito.agregar(p, cantidad);
+        }
+
+        Descuento desc = descuentoService.calcularDescuentoUnico(carrito, cupon);
+        TicketService.Totales tot = ticketService.calcularTotales(carrito, desc);
+
+        model.addAttribute("nombre", nombre);
+        model.addAttribute("email", email);
+        model.addAttribute("carrito", carrito);
+        model.addAttribute("descuento", desc);
+        model.addAttribute("tot", tot);
+        model.addAttribute("fmt", new FormatUtil()); // para helper de moneda
+
+        return "ticket";
     }
 
-    Descuento desc = descuentoService.calcularDescuentoUnico(cart.getCarrito(), null);
-    TicketService.Totales tot = ticketService.calcularTotales(cart.getCarrito(), desc);
+    // Descargar el HTML del ticket (Content-Disposition: attachment)
+    @GetMapping("/ticket/download/html")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<String> downloadTicketHtml(
+            @RequestParam String nombre,
+            @RequestParam String email) {
 
-    model.addAttribute("principales", principales);
-    model.addAttribute("categoria", categoria);
-    model.addAttribute("subcats", subcats);
-    model.addAttribute("subcat", subcat);
-    model.addAttribute("productos", productos);
-    model.addAttribute("items", cart.getCarrito().getItems());
-    model.addAttribute("format", new FormatUtil());
-    model.addAttribute("desc", desc);
-    model.addAttribute("tot", tot);
+        String html = """
+          <!doctype html>
+          <html lang="es"><head><meta charset="utf-8"><title>Ticket</title>
+          <style>body{font-family:Arial;margin:24px} .logo{max-height:72px}</style>
+          </head><body>
+            <div style="text-align:center">
+              <img class="logo" src="/img/logo.png" alt="logo"/>
+              <h2>Ticket de compra</h2>
+            </div>
+            <p><b>Cliente:</b> %s<br><b>Email:</b> %s</p>
+            <p>Este ticket fue generado como HTML descargable.</p>
+          </body></html>
+        """.formatted(nombre, email);
 
-    return "index";
-  }
-
-  @PostMapping("/add")
-  public String add(@RequestParam Categoria subcat,
-                    @RequestParam String productoNombre,
-                    @RequestParam int cantidad) {
-    Map<Categoria, List<Producto>> map = catalogoService.obtenerCatalogo(subcat);
-    Producto elegido = map.getOrDefault(subcat, List.of())
-                          .stream().filter(p -> p.getNombre().equals(productoNombre))
-                          .findFirst().orElse(null);
-    if (elegido != null) cart.getCarrito().agregar(elegido, cantidad);
-    return "redirect:/?categoria="+subcat.getRaiz()+"&subcat="+subcat;
-  }
-
-  @PostMapping("/remove")
-  public String remove(@RequestParam int index,
-                       @RequestParam(required=false) Categoria categoria,
-                       @RequestParam(required=false) Categoria subcat) {
-    if (index>=0 && index<cart.getCarrito().getItems().size())
-      cart.getCarrito().getItems().remove(index);
-    return "redirect:/?categoria="+(categoria!=null?categoria:"")+"&subcat="+(subcat!=null?subcat:"");
-  }
-
-  @PostMapping("/checkout")
-  public @ResponseBody FileSystemResource checkout(@RequestParam String nombre,
-                                                   @RequestParam String email,
-                                                   HttpServletResponse resp) throws Exception {
-
-    Descuento desc = descuentoService.calcularDescuentoUnico(cart.getCarrito(), null);
-    TicketService.Totales tot = ticketService.calcularTotales(cart.getCarrito(), desc);
-
-    String filename = "ticket_" + nombre.trim().replaceAll("\\s+","_") + ".pdf";
-    File out = File.createTempFile("ticket_", ".pdf");
-    new tienda.pdf.PdfBoxGenerator().generateTicket(out.getAbsolutePath(), nombre, email, cart.getCarrito(), desc, tot);
-
-    VentaDoc v = new VentaDoc();
-    v.nombre = nombre; v.email = email;
-    v.subtotal = tot.subtotal; v.descuento = tot.descuento; v.iva = tot.iva; v.total = tot.total;
-    v.pdfNombre = filename;
-    v.items = new ArrayList<>();
-    for (var it : cart.getCarrito().getItems()) {
-      var vi = new VentaDoc.Item();
-      vi.producto = it.getProducto().getNombre();
-      vi.cantidad = it.getCantidad();
-      vi.subtotal = it.getSubtotal();
-      v.items.add(vi);
+        return org.springframework.http.ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=ticket.html")
+                .body(html);
     }
-    ventas.save(v);
-
-    resp.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
-    resp.setContentType(MediaType.APPLICATION_PDF_VALUE);
-
-    cart.getCarrito().getItems().clear();
-
-    return new FileSystemResource(out);
-  }
 }
