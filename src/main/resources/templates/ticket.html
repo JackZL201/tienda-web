@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ticket</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; margin: 24px; }
+    header { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+    h1 { margin: 0; font-size: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border-bottom: 1px solid #eee; padding: 6px; text-align: left; }
+    tfoot td { font-weight: bold; }
+    .right { text-align: right; }
+    .muted { color: #666; font-size: 12px; }
+  </style>
+</head>
+<body>
+<header>
+  <img src="/img/logo.png" alt="Logo" width="100" height="auto"/>
+  <div>
+    <h1>TIENDA - Ticket</h1>
+    <div class="muted" th:text="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm')}"></div>
+  </div>
+</header>
+
+<p><strong>Cliente:</strong> <span th:text="${nombre}"></span> &nbsp;
+   <strong>Email:</strong> <span th:text="${email}"></span></p>
+
+<table>
+  <thead>
+  <tr>
+    <th>Producto</th>
+    <th class="right">Cant</th>
+    <th class="right">Subtotal</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="it : ${carrito.items}">
+    <td th:text="${it.producto.nombre}">Nombre</td>
+    <td class="right" th:text="${it.cantidad}">1</td>
+    <td class="right" th:text="${#numbers.formatDecimal(it.subtotal,1,'POINT',2,'NONE')}">$0.00</td>
+  </tr>
+  </tbody>
+  <tfoot>
+  <tr>
+    <td>Subtotal</td>
+    <td></td>
+    <td class="right" th:text="${#numbers.formatDecimal(tot.subtotal,1,'POINT',2,'NONE')}">$0.00</td>
+  </tr>
+  <tr>
+    <td>Descuento</td>
+    <td></td>
+    <td class="right" th:text="${#numbers.formatDecimal(tot.descuento,1,'POINT',2,'NONE')}">$0.00</td>
+  </tr>
+  <tr>
+    <td>IVA (16%)</td>
+    <td></td>
+    <td class="right" th:text="${#numbers.formatDecimal(tot.iva,1,'POINT',2,'NONE')}">$0.00</td>
+  </tr>
+  <tr>
+    <td>TOTAL</td>
+    <td></td>
+    <td class="right" th:text="${#numbers.formatDecimal(tot.total,1,'POINT',2,'NONE')}">$0.00</td>
+  </tr>
+  </tfoot>
+</table>
+
+<p class="muted">Gracias por su compra.</p>
+</body>
+</html>
