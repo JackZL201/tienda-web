@@ -1,70 +1,48 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="utf-8">
   <title>Ticket</title>
   <style>
-    body { font-family: Arial, Helvetica, sans-serif; margin: 24px; }
-    header { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
-    h1 { margin: 0; font-size: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    th, td { border-bottom: 1px solid #eee; padding: 6px; text-align: left; }
-    tfoot td { font-weight: bold; }
-    .right { text-align: right; }
-    .muted { color: #666; font-size: 12px; }
+    body{font-family: Arial, sans-serif; margin:24px;}
+    .header{ text-align:center; }
+    .logo{ max-height:72px; margin-bottom:8px; }
+    table{ width:100%; border-collapse: collapse; margin-top:16px;}
+    th,td{ border-bottom:1px solid #ddd; padding:8px; text-align:left; }
+    .tot{ text-align:right; }
   </style>
 </head>
 <body>
-<header>
-  <img src="/img/logo.png" alt="Logo" width="100" height="auto"/>
-  <div>
-    <h1>TIENDA - Ticket</h1>
-    <div class="muted" th:text="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm')}"></div>
+  <div class="header">
+    <img class="logo" src="/img/logo.png" alt="logo">
+    <h2>Ticket de compra</h2>
   </div>
-</header>
 
-<p><strong>Cliente:</strong> <span th:text="${nombre}"></span> &nbsp;
-   <strong>Email:</strong> <span th:text="${email}"></span></p>
+  <p><b>Cliente:</b> <span th:text="${nombre}"></span><br>
+     <b>Email:</b> <span th:text="${email}"></span></p>
 
-<table>
-  <thead>
-  <tr>
-    <th>Producto</th>
-    <th class="right">Cant</th>
-    <th class="right">Subtotal</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr th:each="it : ${carrito.items}">
-    <td th:text="${it.producto.nombre}">Nombre</td>
-    <td class="right" th:text="${it.cantidad}">1</td>
-    <td class="right" th:text="${#numbers.formatDecimal(it.subtotal,1,'POINT',2,'NONE')}">$0.00</td>
-  </tr>
-  </tbody>
-  <tfoot>
-  <tr>
-    <td>Subtotal</td>
-    <td></td>
-    <td class="right" th:text="${#numbers.formatDecimal(tot.subtotal,1,'POINT',2,'NONE')}">$0.00</td>
-  </tr>
-  <tr>
-    <td>Descuento</td>
-    <td></td>
-    <td class="right" th:text="${#numbers.formatDecimal(tot.descuento,1,'POINT',2,'NONE')}">$0.00</td>
-  </tr>
-  <tr>
-    <td>IVA (16%)</td>
-    <td></td>
-    <td class="right" th:text="${#numbers.formatDecimal(tot.iva,1,'POINT',2,'NONE')}">$0.00</td>
-  </tr>
-  <tr>
-    <td>TOTAL</td>
-    <td></td>
-    <td class="right" th:text="${#numbers.formatDecimal(tot.total,1,'POINT',2,'NONE')}">$0.00</td>
-  </tr>
-  </tfoot>
-</table>
+  <table>
+    <thead>
+      <tr><th>Producto</th><th>Cant</th><th class="tot">Subtotal</th></tr>
+    </thead>
+    <tbody>
+      <tr th:each="it : ${carrito.items}">
+        <td th:text="${it.producto.nombre}"></td>
+        <td th:text="${it.cantidad}"></td>
+        <td class="tot" th:text="${#numbers.formatDecimal(it.subtotal,1,'COMMA',2,'POINT')}"></td>
+      </tr>
+    </tbody>
+  </table>
 
-<p class="muted">Gracias por su compra.</p>
+  <p th:if="${descuento != null}">
+    <b>Descuento:</b> <span th:text="${descuento.etiqueta}"></span>
+    — <span th:text="${#numbers.formatDecimal(descuento.monto,1,'COMMA',2,'POINT')}"></span>
+  </p>
+
+  <h3 class="tot">
+    Subtotal: <span th:text="${#numbers.formatDecimal(tot.subtotal,1,'COMMA',2,'POINT')}"></span><br>
+    IVA (16%): <span th:text="${#numbers.formatDecimal(tot.iva,1,'COMMA',2,'POINT')}"></span><br>
+    TOTAL: <span th:text="${#numbers.formatDecimal(tot.total,1,'COMMA',2,'POINT')}"></span>
+  </h3>
 </body>
 </html>
