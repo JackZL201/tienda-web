@@ -1,19 +1,29 @@
-package tienda.service;
+package com.tiendaweb.tienda.service;
 
-import tienda.models.Carrito;
-import tienda.models.Descuento;
+import com.tiendaweb.session.CartSession;
+import com.tiendaweb.tienda.models.Carrito;
+import org.springframework.stereotype.Service;
 
+@Service
 public class TicketService {
-    public static class Totales {
-        public double subtotal, descuento, iva, total;
+
+    private final CartSession cartSession;
+    private final DescuentoService descuentoService;
+
+    public TicketService(CartSession cartSession, DescuentoService descuentoService) {
+        this.cartSession = cartSession;
+        this.descuentoService = descuentoService;
     }
-    public Totales calcularTotales(Carrito carrito, Descuento desc) {
-        Totales t = new Totales();
-        t.subtotal = carrito.getItems().stream().mapToDouble(i -> i.getSubtotal()).sum();
-        t.descuento = (desc != null ? desc.getMonto() : 0.0);
-        double base = Math.max(0, t.subtotal - t.descuento);
-        t.iva = base * 0.16;
-        t.total = base + t.iva;
-        return t;
+
+    /** Carrito de la sesión actual */
+    public Carrito getCarritoActual() {
+        return cartSession.getCarrito();
+    }
+
+    /** Descuento aplicado según el subtotal actual del carrito */
+    public double getDescuentoAplicado() {
+        Carrito c = getCarritoActual();
+        double subtotal = (c != null) ? c.getSubtotal() : 0.0;
+        return descuentoService.calcularDescuento(subtotal);
     }
 }
