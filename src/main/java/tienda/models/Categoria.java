@@ -1,4 +1,4 @@
-package tienda.models;
+package com.tiendaweb.tienda.models;
 
 public enum Categoria {
     // Raíces
