@@ -1,4 +1,4 @@
-package tienda.models;
+package com.tiendaweb.tienda.models;
 
 public class ItemCarrito {
     private final Producto producto;
