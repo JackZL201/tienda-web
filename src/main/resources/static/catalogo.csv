@@ -1,0 +1,52 @@
+# subcategoria,nombre,precio
+LECHE_ENTERA,Lala 1 L,28.50
+LECHE_ENTERA,Santa Clara 1 L (6 piezas),230.00
+LECHE_ENTERA,Alpura 1 L (6 piezas),180.00
+LECHE_ENTERA,NutriLeche 1 L,25.00
+LECHE_DESLACTOSADA,Lala 1 L (6 piezas),159.00
+LECHE_DESLACTOSADA,Alpura 1 L,30.00
+LECHE_DESLACTOSADA,Santa Clara 1 L,40.00
+LECHE_SABORIZADA,Lala Yomi vainilla 180 ml,10.00
+LECHE_SABORIZADA,Lala Yomi chocolate 180 ml,10.00
+LECHE_SABORIZADA,Lala Yomi fresa 180 ml,10.00
+LECHE_SABORIZADA,Alpura Vainilla 180 ml,11.00
+LECHE_SABORIZADA,Alpura Fresa 180 ml,11.00
+LECHE_SABORIZADA,Alpura Chocolate 180 ml,11.00
+LECHE_SABORIZADA,Santa Clara Vainilla 180 ml,13.00
+LECHE_SABORIZADA,Santa Clara Chocolate 180 ml,13.00
+LECHE_SABORIZADA,Santa Clara Fresa 180 ml,13.00
+YOGURT_BEBIBLE,Lala Fresa 220 g (8 pzas),70.00
+YOGURT_NATURAL,Alpura Natural 1 kg,42.00
+YOGURT_GRIEGO,Danone Griego 150 g,18.00
+MANTEQUILLA_MARGARINA,Lala sin sal 90 g,24.00
+MANTEQUILLA_MARGARINA,Primavera 225 g,18.00
+GALLETAS,Marinela Canelitas 300 g,37.90
+GALLETAS,Chokies 300 g,107.00
+GALLETAS,Sponch 700 g (4 paquetes),79.50
+GALLETAS,Pastelitos 400 g,56.90
+GALLETAS,Surtdo de marinela 450 g,73.50
+BOTANAS,Sabritas (elige sabores) 75 g,18.00
+BOTANAS,Doritos Rojos 75 g,18.00
+BOTANAS,Doritos Verdes 35 g,10.00
+BOTANAS,Cheetos 80 g,15.00
+BOTANAS,Cacahuates 70 g,20.00
+PASTELITOS,Gansito Marinela 50 g,20.90
+PASTELITOS,Pingüinos Marinela 80 g,27.90
+PASTELITOS,Choco Roles 122 g (2 pzas),27.90
+PASTELITOS,Gansito Marinela 3 piezas,50.90
+LIMPIEZA,Pinol El Original 5.1 L,179.00
+LIMPIEZA,Fabuloso 6 L,199.00
+LIMPIEZA,Cloralex 1 L,68.00
+LIMPIEZA,Clorox 1 L,65.00
+LIMPIEZA,Vanisn 1 L,90.00
+DETERGENTES,Ariel Líquido Poder y Cuidado 8.5 L,374.25
+DETERGENTES,Persil en Polvo 9 kg,439.00
+LAVATRASTES,Salvo Limón Líquido 1.4 L,69.00
+LAVATRASTES,Salvo polvo 1 K,39.00
+LAVATRASTES,Salvo Lavatrastes Limón 900 ml,55.00
+LAVATRASTES,Salvo Lavatrastes Limón 500 ml,32.90
+BEBIDAS,Topo Chico 600 ml,20.00
+BEBIDAS,Coca-Cola 600 ml,22.00
+BEBIDAS,Coca-Cola Light 600 ml,22.00
+BEBIDAS,Coca-Cola Zero 600 ml,22.00
+BEBIDAS,Fresca 600 ml,20.00
