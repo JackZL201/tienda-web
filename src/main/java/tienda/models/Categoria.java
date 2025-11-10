@@ -1,0 +1,23 @@
+package tienda.models;
+
+public enum Categoria {
+    // Raíces
+    LECHE, YOGURT, MANTEQUILLA_MARGARINA, SNACKS, LIMPIEZA, DETERGENTES, LAVATRASTES, BEBIDAS,
+    // Subcategorías
+    LECHE_ENTERA, LECHE_DESLACTOSADA, LECHE_SABORIZADA,
+    YOGURT_BEBIBLE, YOGURT_NATURAL, YOGURT_GRIEGO,
+    GALLETAS, BOTANAS, PASTELITOS;
+
+    public Categoria getRaiz() {
+        return switch (this) {
+            case LECHE, LECHE_ENTERA, LECHE_DESLACTOSADA, LECHE_SABORIZADA -> LECHE;
+            case YOGURT, YOGURT_BEBIBLE, YOGURT_NATURAL, YOGURT_GRIEGO -> YOGURT;
+            case GALLETAS, BOTANAS, PASTELITOS, SNACKS -> SNACKS;
+            case MANTEQUILLA_MARGARINA -> MANTEQUILLA_MARGARINA;
+            case LIMPIEZA -> LIMPIEZA;
+            case DETERGENTES -> DETERGENTES;
+            case LAVATRASTES -> LAVATRASTES;
+            case BEBIDAS -> BEBIDAS;
+        };
+    }
+}
