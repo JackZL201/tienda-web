@@ -49,13 +49,6 @@
       <artifactId>spring-boot-starter-validation</artifactId>
     </dependency>
 
-    <!-- PDF -->
-    <dependency>
-      <groupId>org.apache.pdfbox</groupId>
-      <artifactId>pdfbox</artifactId>
-      <version>3.0.6</version>
-    </dependency>
-
     <!-- Lombok (opcional) -->
     <dependency>
       <groupId>org.projectlombok</groupId>
