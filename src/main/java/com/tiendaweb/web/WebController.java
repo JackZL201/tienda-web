@@ -1,80 +1,64 @@
-package tienda.web;
+package com.tiendaweb.web;
+
+import com.tiendaweb.tienda.models.Carrito;
+import com.tiendaweb.tienda.models.Producto;
+import com.tiendaweb.tienda.service.CatalogoService;
+import com.tiendaweb.tienda.service.TicketService;
+import com.tiendaweb.session.CartSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import tienda.models.*;
-import tienda.service.*;
-import tienda.util.FormatUtil;
-
 @Controller
 public class WebController {
 
-    private final CatalogoService catalogoService = new CatalogoService();
-    private final DescuentoService descuentoService = new DescuentoService();
-    private final TicketService ticketService = new TicketService();
+    private final CatalogoService catalogoService;
+    private final TicketService ticketService;
+    private final CartSession cartSession;
+
+    public WebController(CatalogoService catalogoService, TicketService ticketService, CartSession cartSession) {
+        this.catalogoService = catalogoService;
+        this.ticketService = ticketService;
+        this.cartSession = cartSession;
+    }
 
     @GetMapping("/")
-    public String home() {
-        return "index"; // opcional
+    public String index(Model model) {
+        model.addAttribute("categorias", catalogoService.getCategorias()); // si lo tienes
+        model.addAttribute("productos", catalogoService.getProductos());   // si lo tienes
+        model.addAttribute("carrito", cartSession.getCarrito());
+        return "index";
     }
 
-    // Vista del ticket en HTML
-    @GetMapping("/ticket")
-    public String ticketHtml(
-            @RequestParam String nombre,
-            @RequestParam String email,
-            @RequestParam(required = false) String categoria,
-            @RequestParam(required = false) String subcategoria,
-            @RequestParam(required = false) String producto,
-            @RequestParam(required = false, defaultValue = "1") int cantidad,
-            @RequestParam(required = false) String cupon,
-            Model model) {
-
-        // Construir carrito breve de ejemplo (o usa tus params)
-        Carrito carrito = new Carrito();
-        if (producto != null) {
-            Producto p = catalogoService.buscarProductoPorNombre(producto);
-            if (p != null) carrito.agregar(p, cantidad);
+    @PostMapping("/agregar")
+    public String agregarProducto(@RequestParam("nombre") String nombre) {
+        Producto p = catalogoService.buscarProductoPorNombre(nombre); // <-- EXISTE en CatalogoService
+        if (p != null) {
+            cartSession.agregarProducto(p, 1);
         }
-
-        Descuento desc = descuentoService.calcularDescuentoUnico(carrito, cupon);
-        TicketService.Totales tot = ticketService.calcularTotales(carrito, desc);
-
-        model.addAttribute("nombre", nombre);
-        model.addAttribute("email", email);
-        model.addAttribute("carrito", carrito);
-        model.addAttribute("descuento", desc);
-        model.addAttribute("tot", tot);
-        model.addAttribute("fmt", new FormatUtil()); // para helper de moneda
-
-        return "ticket";
+        return "redirect:/";
     }
 
-    // Descargar el HTML del ticket (Content-Disposition: attachment)
-    @GetMapping("/ticket/download/html")
-    @ResponseBody
-    public org.springframework.http.ResponseEntity<String> downloadTicketHtml(
-            @RequestParam String nombre,
-            @RequestParam String email) {
+    @PostMapping("/limpiar")
+    public String limpiarCarrito() {
+        cartSession.limpiar();
+        return "redirect:/";
+    }
 
-        String html = """
-          <!doctype html>
-          <html lang="es"><head><meta charset="utf-8"><title>Ticket</title>
-          <style>body{font-family:Arial;margin:24px} .logo{max-height:72px}</style>
-          </head><body>
-            <div style="text-align:center">
-              <img class="logo" src="/img/logo.png" alt="logo"/>
-              <h2>Ticket de compra</h2>
-            </div>
-            <p><b>Cliente:</b> %s<br><b>Email:</b> %s</p>
-            <p>Este ticket fue generado como HTML descargable.</p>
-          </body></html>
-        """.formatted(nombre, email);
+    @GetMapping("/ticket")
+    public String verTicket(Model model) {
+        Carrito carrito = ticketService.getCarritoActual();
+        double subtotal = (carrito != null) ? carrito.getSubtotal() : 0.0;
+        double descuento = ticketService.getDescuentoAplicado();
+        double iva = subtotal * 0.16;
+        double total = subtotal - descuento + iva;
 
-        return org.springframework.http.ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=ticket.html")
-                .body(html);
+        model.addAttribute("carrito", carrito);
+        model.addAttribute("subtotal", subtotal);
+        model.addAttribute("descuento", descuento);
+        model.addAttribute("iva", iva);
+        model.addAttribute("total", total);
+        return "ticket";
     }
 }
