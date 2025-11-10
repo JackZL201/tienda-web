@@ -1,4 +1,4 @@
-package tienda.models;
+package com.tiendaweb.tienda.models;
 
 import java.util.ArrayList;
 import java.util.List;
