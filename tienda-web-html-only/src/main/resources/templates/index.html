@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tienda Web</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <style>
+    body{padding-bottom:4rem}
+    .price{font-weight:700}
+    .cat a{margin-right:.5rem}
+  </style>
+</head>
+<body class="container py-3">
+  <header class="d-flex align-items-center gap-3 mb-4">
+    <img src="/img/logo.png" alt="logo" style="height:48px">
+    <h1 class="h4 m-0">Tienda Web</h1>
+    <div class="ms-auto">
+      <a class="btn btn-outline-primary" href="/ticket">Ver Ticket</a>
+    </div>
+  </header>
+
+  <section class="cat mb-3">
+    <strong>Categorías:</strong>
+    <a th:each="c: ${categorias}" th:href="@{/(cat=${c})}" th:text="${c}"
+       th:classappend="${cat}==${c} ? 'btn btn-primary btn-sm' : 'btn btn-outline-secondary btn-sm'"></a>
+    <a class="btn btn-outline-dark btn-sm" href="/">Todos</a>
+  </section>
+
+  <div class="row row-cols-1 row-cols-md-2 g-3">
+    <div class="col" th:each="p: ${productos}">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title" th:text="${p.nombre}">Nombre</h5>
+          <p class="card-text">
+            <span class="badge bg-secondary" th:text="${p.categoria}">Cat</span>
+            <span class="ms-2 price" th:text="${#numbers.formatCurrency(p.precio)}"></span>
+            <small class="text-muted" th:text="${p.unidad}"></small>
+          </p>
+          <form th:action="@{'/cart/add/' + ${p.codigo}}" method="post">
+            <button class="btn btn-sm btn-success">Añadir</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center text-muted mt-4">Demo – Genera ticket HTML, no PDF.</footer>
+</body>
+</html>
